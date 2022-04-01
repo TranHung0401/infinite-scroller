@@ -37,7 +37,9 @@ function App() {
   }, [loading])
 
   return (
-    <div className="App" style={{ padding: '20px' }}>
+    <div className="App" style={{ padding: '0px 20px 40px' }}>
+      <h1 style={{ fontSize: '60px', textAlign: 'center' }}>Infinite Scroller</h1>
+
       <div className="content">
         {
           pokemons.map((pokemon, index) => <Card key={index} name={pokemon}></Card>)
