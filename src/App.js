@@ -1,23 +1,55 @@
-import logo from './logo.svg';
 import './App.css';
+import { useEffect, useState, useRef } from 'react';
+import Card from './components/Card'
+import api from './services/api'
 
 function App() {
+  const [pokemons, setPokemons] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [offset, setOffset] = useState(50);
+
+  useEffect(() => {
+    const newPokemons = [];
+    api.get(`?limit=50&offset=${offset}`)
+      .then(({ data }) => {
+        data.results.forEach((p) => newPokemons.push(p.name))
+        setPokemons((prevState) => ([...prevState, ...newPokemons]))
+      })
+    setLoading(true)
+  }, [offset])
+
+  const handleLoadClick = () => {
+    setOffset(prevOffset => prevOffset = prevOffset + 5)
+  }
+
+  const pageEnd = useRef()
+  useEffect(() => {
+    if (loading) {
+      const observer = new IntersectionObserver(entries => {
+        if (entries[0].isIntersecting) {
+          handleLoadClick()
+        }
+      }, { threshold: 1 })
+      observer.observe(pageEnd.current)
+    }
+
+
+  }, [loading])
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
+    <div className="App" style={{ padding: '20px' }}>
+      <div className="content">
+        {
+          pokemons.map((pokemon, index) => <Card key={index} name={pokemon}></Card>)
+        }
+        <div
+          className="loading"
+          onClick={handleLoadClick}
+          ref={pageEnd}
         >
-          Learn React
-        </a>
-      </header>
+          Loading ...
+        </div>
+      </div>
     </div>
   );
 }
